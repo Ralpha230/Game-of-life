@@ -3,7 +3,6 @@ package gameOfLife.ui;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -12,7 +11,6 @@ import gameOfLife.core.Cell;
 import gameOfLife.core.Grid;
 import gameOfLife.core.WorldMachine;
 import gameOfLife.core.WorldMachine.GenerationListener;
-import gameOfLife.utils.Pair;
 
 public class View implements GenerationListener {
 
@@ -24,7 +22,7 @@ public class View implements GenerationListener {
 		this.grid = wm.grid();
 		wm.setListener(this);
 
-		this.f = new JFrame("My Innermost Game Of Life");
+		this.f = new JFrame("My Humble Game Of Life");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.add(new MyPanel(grid));
 		f.pack();
@@ -32,6 +30,8 @@ public class View implements GenerationListener {
 	}
 
 	static class MyPanel extends JPanel {
+
+		private static final long serialVersionUID = 1L;
 
 		private Grid grid;
 

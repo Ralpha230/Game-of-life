@@ -15,8 +15,9 @@ public class Main {
 		Grid grid = new Grid();
 		drawGliderSE(grid, new Point(0, 0));
 		drawGliderSE(grid, new Point(5, 5));
+		drawBlinker(grid, new Point(10, 10));
 		WorldMachine wm = new WorldMachine(grid, genDuration);
-		View view = new View(wm);
+		new View(wm);
 
 		wm.start();
 

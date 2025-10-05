@@ -92,7 +92,7 @@ public class Grid {
 	 */
 	public Pair<Point, Point> corners() {
 		if (cells.isEmpty()) {
-			return new Pair(new Point(0, 0), new Point(0, 0));
+			return new Pair<Point, Point>(new Point(0, 0), new Point(0, 0));
 		}
 
 		Point topLeft = new Point(Integer.MAX_VALUE, Integer.MAX_VALUE);
@@ -114,7 +114,7 @@ public class Grid {
 			}
 		}
 
-		return new Pair(topLeft, bottomRight);
+		return new Pair<Point, Point>(topLeft, bottomRight);
 	}
 
 	public int width() {
