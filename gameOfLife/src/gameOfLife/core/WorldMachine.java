@@ -18,6 +18,8 @@ public class WorldMachine extends Thread {
 		return grid;
 	}
 
+	private static int i = 0;
+
 	public void run() {
 		while (true) {
 			try {
@@ -28,6 +30,7 @@ public class WorldMachine extends Thread {
 			grid.generate();
 			for (GenerationListener l : listeners) {
 				l.newGeneration();
+				i++;
 			}
 		}
 	}

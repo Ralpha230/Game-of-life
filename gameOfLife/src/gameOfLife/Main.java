@@ -4,6 +4,7 @@ import java.awt.Point;
 
 import gameOfLife.core.Grid;
 import gameOfLife.core.WorldMachine;
+import gameOfLife.ui.Interaction;
 import gameOfLife.ui.View;
 
 public class Main {
