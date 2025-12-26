@@ -21,20 +21,21 @@ public class View extends JComponent {
     Grid grid;
 
     private Point translate = new Point(0, 0);
-
-    private DoubleWrapper zoomFactor = new DoubleWrapper(1);
+    private DoubleWrapper zoomFactor = new DoubleWrapper(1.0);
 
     public View(Grid grid, int frameRate) {
         this.grid = grid;
 
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.add(new MyPanel(grid, translate, zoomFactor));
+        GridViewer viewer = new GridViewer(grid, translate, zoomFactor);
+        f.add(viewer);
         f.pack();
         f.setVisible(true);
 
         Interaction interaction = new Interaction(this);
         f.addKeyListener(interaction);
-        f.addMouseListener(interaction);
+        viewer.addMouseListener(interaction);
+        viewer.addMouseMotionListener(interaction);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -50,7 +51,7 @@ public class View extends JComponent {
         }).start();
     }
 
-    static class MyPanel extends JPanel {
+    public class GridViewer extends JPanel {
 
         @Serial
         private static final long serialVersionUID = 1L;
@@ -58,12 +59,11 @@ public class View extends JComponent {
         private final Grid grid;
 
         // Size of a cell in pixels
-        private final int cellSize = 1;
-        private final int margin = 10;
+        private static final int cellSize = 1;
         private Point translate;
-        private DoubleWrapper zoomFactor;
+        private final DoubleWrapper zoomFactor;
 
-        MyPanel(Grid grid, Point translate, DoubleWrapper zoomFactor) {
+        public GridViewer(Grid grid, Point translate, DoubleWrapper zoomFactor) {
             this.grid = grid;
             this.translate = translate;
             this.zoomFactor = zoomFactor;
@@ -77,13 +77,29 @@ public class View extends JComponent {
             super.paintComponent(g);
 
             Graphics2D g2 = (Graphics2D) g;
-            g2.scale(20 * zoomFactor.value / cellSize, 20 * zoomFactor.value / cellSize);
-            g2.translate(margin + translate.x, margin + translate.y);
+            g2.scale(zoomFactor.value / cellSize, zoomFactor.value / cellSize);
+            g2.translate(translate.x, translate.y);
 
             for (Cell c : grid.cells()) {
                 g2.fillRect(c.pos().x * cellSize, c.pos().y * cellSize, cellSize, cellSize);
             }
         }
+    }
+
+    public Point getTranslate() {
+        return translate;
+    }
+
+    public void setTranslate(Point p) {
+        translate = p;
+    }
+
+    public double getZoomFactor() {
+        return zoomFactor.value;
+    }
+
+    public void setZoomFactor(double zoom) {
+        zoomFactor.value = zoom;
     }
 
     // Interaction
@@ -103,6 +119,10 @@ public class View extends JComponent {
 
     public void resetZoom() {
         zoomFactor.value = 1;
+    }
+
+    public void addCell(Point p) {
+        this.grid.addCell(p);
     }
 
 }
