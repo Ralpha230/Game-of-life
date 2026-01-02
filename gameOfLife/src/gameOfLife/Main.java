@@ -18,7 +18,8 @@ public class Main {
         drawGliderSE(grid, new Point(5, 5));
         drawBlinker(grid, new Point(10, 10));
         WorldMachine wm = new WorldMachine(grid, genDuration);
-        new View(grid, frameRate);
+        View view = new View(grid, frameRate);
+        view.getInteraction().setWorldMachine(wm);
 
         wm.start();
 

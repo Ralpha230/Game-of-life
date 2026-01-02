@@ -21,8 +21,9 @@ public class View extends JComponent {
     Grid grid;
 
     private Point translate = new Point(0, 0);
-
     private DoubleWrapper zoomFactor = new DoubleWrapper(1);
+
+    private final Interaction interaction;
 
     public View(Grid grid, int frameRate) {
         this.grid = grid;
@@ -32,7 +33,7 @@ public class View extends JComponent {
         f.pack();
         f.setVisible(true);
 
-        Interaction interaction = new Interaction(this);
+        this.interaction = new Interaction(this);
         f.addKeyListener(interaction);
         f.addMouseListener(interaction);
         new Thread(new Runnable() {
@@ -84,6 +85,10 @@ public class View extends JComponent {
                 g2.fillRect(c.pos().x * cellSize, c.pos().y * cellSize, cellSize, cellSize);
             }
         }
+    }
+
+    public Interaction getInteraction() {
+        return interaction;
     }
 
     // Interaction
