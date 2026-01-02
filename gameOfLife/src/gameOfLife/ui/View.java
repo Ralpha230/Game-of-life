@@ -23,6 +23,8 @@ public class View extends JComponent {
     private Point translate = new Point(0, 0);
     private DoubleWrapper zoomFactor = new DoubleWrapper(1.0);
 
+    private final Interaction interaction;
+
     public View(Grid grid, int frameRate) {
         this.grid = grid;
 
@@ -32,7 +34,7 @@ public class View extends JComponent {
         f.pack();
         f.setVisible(true);
 
-        Interaction interaction = new Interaction(this);
+        this.interaction = new Interaction(this);
         f.addKeyListener(interaction);
         viewer.addMouseListener(interaction);
         viewer.addMouseMotionListener(interaction);
@@ -100,6 +102,10 @@ public class View extends JComponent {
 
     public void setZoomFactor(double zoom) {
         zoomFactor.value = zoom;
+    }
+
+    public Interaction getInteraction() {
+        return interaction;
     }
 
     // Interaction

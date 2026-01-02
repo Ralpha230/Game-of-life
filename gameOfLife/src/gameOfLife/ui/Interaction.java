@@ -1,16 +1,28 @@
 package gameOfLife.ui;
 
+import gameOfLife.core.WorldMachine;
+
 import java.awt.Point;
 import java.awt.event.*;
 
 public class Interaction implements KeyListener, MouseListener, MouseMotionListener {
 
     private View v;
+    private WorldMachine worldMachine;
 
     private KeyState keyState = KeyState.IDLE;
 
-    public Interaction(View v) {
-        this.v = v;
+    public Interaction(View view, WorldMachine worldMachine) {
+        this.v = view;
+        this.worldMachine = worldMachine;
+    }
+
+    public Interaction(View view) {
+        this.v = view;
+    }
+
+    public void setWorldMachine(WorldMachine worldMachine) {
+        this.worldMachine = worldMachine;
     }
 
     @Override
@@ -53,6 +65,12 @@ public class Interaction implements KeyListener, MouseListener, MouseMotionListe
                         v.resetZoom();
                         return;
                 }
+                return;
+            case KeyEvent.VK_SPACE:
+                if (worldMachine != null) {
+                    worldMachine.pause();
+                }
+                return;
         }
     }
 
