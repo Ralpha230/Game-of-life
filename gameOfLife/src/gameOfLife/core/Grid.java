@@ -14,6 +14,8 @@ public class Grid {
         this.cells = new HashSet<>();
     }
 
+    private long generation = 0;
+
     /*
      * Updates the grid to hold the next generation
      */
@@ -58,6 +60,7 @@ public class Grid {
         }
 
         cells = res;
+        generation++;
     }
 
     /*
@@ -131,6 +134,10 @@ public class Grid {
 
     public void addCell(Point pos) {
         cells.add(new Cell(pos));
+    }
+
+    public long generation() {
+        return generation;
     }
 
 }

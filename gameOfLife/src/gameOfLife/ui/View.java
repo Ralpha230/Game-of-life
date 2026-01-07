@@ -1,13 +1,11 @@
 package gameOfLife.ui;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.io.Serial;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
+import javax.xml.crypto.dsig.Transform;
 
 import gameOfLife.core.Cell;
 import gameOfLife.core.Grid;
@@ -61,6 +59,8 @@ public class View {
         private final Point translate;
         private final DoubleWrapper zoomFactor;
 
+        private int HUDOffset = 10;
+
         public GridViewer(Grid grid, Point translate, DoubleWrapper zoomFactor) {
             this.grid = grid;
             this.translate = translate;
@@ -75,12 +75,25 @@ public class View {
             super.paintComponent(g);
 
             Graphics2D g2 = (Graphics2D) g;
-            g2.scale(zoomFactor.value / cellSize, zoomFactor.value / cellSize);
-            g2.translate(-translate.x, -translate.y);
+            AffineTransform HUDTransform = (AffineTransform) g2.getTransform().clone();
+            AffineTransform gridTransform = (AffineTransform) g2.getTransform().clone();
+            gridTransform.scale(zoomFactor.value / cellSize, zoomFactor.value / cellSize);
+            gridTransform.translate(-translate.x, -translate.y);
 
+            g2.setTransform(gridTransform);
             for (Cell c : grid.cells()) {
                 g2.fillRect(c.pos().x * cellSize, c.pos().y * cellSize, cellSize, cellSize);
             }
+
+            g2.setTransform(HUDTransform);
+            paintHUD(g);
+        }
+
+        private void paintHUD(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setFont(new Font("FreeMono", Font.BOLD, 20));
+            FontMetrics fm = g2.getFontMetrics();
+            g2.drawString("Generation " + grid.generation(), HUDOffset, fm.getAscent() + HUDOffset);
         }
     }
 
