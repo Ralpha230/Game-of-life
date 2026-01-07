@@ -6,7 +6,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.io.Serial;
 
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -20,8 +19,8 @@ public class View {
 
     Grid grid;
 
-    private Point translate = new Point(0, 0);
-    private DoubleWrapper zoomFactor = new DoubleWrapper(1.0);
+    private final Point translate = new Point(0, 0);
+    private final DoubleWrapper zoomFactor = new DoubleWrapper(1.0);
 
     private final Interaction interaction;
 
@@ -38,22 +37,19 @@ public class View {
         f.addKeyListener(interaction);
         viewer.addMouseListener(interaction);
         viewer.addMouseMotionListener(interaction);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    f.repaint(1);
-                    try {
-                        Thread.sleep(1000 / frameRate);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+        new Thread(() -> {
+            while (true) {
+                f.repaint(1);
+                try {
+                    Thread.sleep(1000 / frameRate);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
             }
         }).start();
     }
 
-    public class GridViewer extends JPanel {
+    public static class GridViewer extends JPanel {
 
         @Serial
         private static final long serialVersionUID = 1L;
@@ -62,7 +58,7 @@ public class View {
 
         // Size of a cell in pixels
         private static final int cellSize = 1;
-        private Point translate;
+        private final Point translate;
         private final DoubleWrapper zoomFactor;
 
         public GridViewer(Grid grid, Point translate, DoubleWrapper zoomFactor) {
@@ -93,7 +89,7 @@ public class View {
     }
 
     public void setTranslate(Point p) {
-        translate = p;
+        translate.setLocation(p);
     }
 
     public double getZoomFactor() {
