@@ -38,7 +38,7 @@ public class Interaction implements KeyListener, MouseListener, MouseMotionListe
             case KeyEvent.VK_UP:
                 switch (keyState) {
                     case KeyState.IDLE:
-                        v.translate(new Point(0, 1));
+                        v.translate(new Point(0, -1));
                         return;
                     case KeyState.CTRL_PRESSED:
                         v.zoomIn();
@@ -47,17 +47,17 @@ public class Interaction implements KeyListener, MouseListener, MouseMotionListe
             case KeyEvent.VK_DOWN:
                 switch (keyState) {
                     case KeyState.IDLE:
-                        v.translate(new Point(0, -1));
+                        v.translate(new Point(0, 1));
                         return;
                     case KeyState.CTRL_PRESSED:
                         v.zoomOut();
                         return;
                 }
             case KeyEvent.VK_LEFT:
-                v.translate(new Point(1, 0));
+                v.translate(new Point(-1, 0));
                 return;
             case KeyEvent.VK_RIGHT:
-                v.translate(new Point(-1, 0));
+                v.translate(new Point(1, 0));
                 return;
             case KeyEvent.VK_ENTER:
                 switch (keyState) {
@@ -120,7 +120,7 @@ public class Interaction implements KeyListener, MouseListener, MouseMotionListe
     }
 
     private Point pixelToGrid(Point pix) {
-        return new Point((int) ((pix.x + v.getTranslate().x) / v.getZoomFactor()), (int) ((pix.y - v.getTranslate().y) / v.getZoomFactor()));
+        return new Point((int) (pix.x / v.getZoomFactor() + v.getTranslate().x), (int) (pix.y / v.getZoomFactor() + v.getTranslate().y));
     }
 
 }

@@ -14,7 +14,7 @@ import gameOfLife.core.Cell;
 import gameOfLife.core.Grid;
 import gameOfLife.utils.DoubleWrapper;
 
-public class View extends JComponent {
+public class View {
 
     JFrame f = new JFrame("My Humble Game Of Life");
 
@@ -80,7 +80,7 @@ public class View extends JComponent {
 
             Graphics2D g2 = (Graphics2D) g;
             g2.scale(zoomFactor.value / cellSize, zoomFactor.value / cellSize);
-            g2.translate(translate.x, translate.y);
+            g2.translate(-translate.x, -translate.y);
 
             for (Cell c : grid.cells()) {
                 g2.fillRect(c.pos().x * cellSize, c.pos().y * cellSize, cellSize, cellSize);
