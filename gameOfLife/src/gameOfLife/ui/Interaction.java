@@ -89,7 +89,9 @@ public class Interaction implements KeyListener, MouseListener, MouseMotionListe
 
     @Override
     public void mousePressed(MouseEvent e) {
-        v.addCell(pixelToGrid(e.getPoint()));
+        if (worldMachine.isPaused()) {
+            v.addCell(pixelToGrid(e.getPoint()));
+        }
     }
 
     @Override
@@ -108,7 +110,9 @@ public class Interaction implements KeyListener, MouseListener, MouseMotionListe
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        v.addCell(pixelToGrid(e.getPoint()));
+        if (worldMachine.isPaused()) {
+            v.addCell(pixelToGrid(e.getPoint()));
+        }
     }
 
     @Override

@@ -57,6 +57,10 @@ public class WorldMachine {
         paused = true;
     }
 
+    public boolean isPaused() {
+        return paused;
+    }
+
     public Grid grid() {
         return grid;
     }
