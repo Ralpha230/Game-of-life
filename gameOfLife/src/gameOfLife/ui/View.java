@@ -5,7 +5,6 @@ import java.awt.geom.AffineTransform;
 import java.io.Serial;
 
 import javax.swing.*;
-import javax.xml.crypto.dsig.Transform;
 
 import gameOfLife.core.Cell;
 import gameOfLife.core.Grid;
@@ -17,16 +16,18 @@ public class View {
 
     Grid grid;
 
-    private final Point translate = new Point(0, 0);
-    private final DoubleWrapper zoomFactor = new DoubleWrapper(1.0);
+    final Point translate = new Point(0, 0);
+    final DoubleWrapper zoomFactor = new DoubleWrapper(1.0);
 
-    private final Interaction interaction;
+    final Interaction interaction;
+    Boolean mustDisplayMouse = false;
+    final Point mousePositionOnGrid = new Point(0, 0);
 
     public View(Grid grid, int frameRate) {
         this.grid = grid;
 
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        GridViewer viewer = new GridViewer(grid, translate, zoomFactor);
+        GridViewer viewer = new GridViewer(this);
         f.add(viewer);
         f.pack();
         f.setVisible(true);
@@ -52,19 +53,15 @@ public class View {
         @Serial
         private static final long serialVersionUID = 1L;
 
-        private final Grid grid;
+        private final View view;
 
         // Size of a cell in pixels
         private static final int cellSize = 1;
-        private final Point translate;
-        private final DoubleWrapper zoomFactor;
 
         private int HUDOffset = 10;
 
-        public GridViewer(Grid grid, Point translate, DoubleWrapper zoomFactor) {
-            this.grid = grid;
-            this.translate = translate;
-            this.zoomFactor = zoomFactor;
+        public GridViewer(View view) {
+            this.view = view;
         }
 
         public Dimension getPreferredSize() {
@@ -77,23 +74,27 @@ public class View {
             Graphics2D g2 = (Graphics2D) g;
             AffineTransform HUDTransform = (AffineTransform) g2.getTransform().clone();
             AffineTransform gridTransform = (AffineTransform) g2.getTransform().clone();
-            gridTransform.scale(zoomFactor.value / cellSize, zoomFactor.value / cellSize);
-            gridTransform.translate(-translate.x, -translate.y);
+            gridTransform.scale(view.zoomFactor.value / cellSize, view.zoomFactor.value / cellSize);
+            gridTransform.translate(-view.translate.x, -view.translate.y);
 
+            // Painting cells
             g2.setTransform(gridTransform);
-            for (Cell c : grid.cells()) {
+            for (Cell c : view.grid.cells()) {
                 g2.fillRect(c.pos().x * cellSize, c.pos().y * cellSize, cellSize, cellSize);
             }
 
-            g2.setTransform(HUDTransform);
-            paintHUD(g);
-        }
+            // Painting mouse cursor
+            if (view.mustDisplayMouse) {
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+                g2.fillRect(view.mousePositionOnGrid.x * cellSize, view.mousePositionOnGrid.y * cellSize, cellSize, cellSize);
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1));
+            }
 
-        private void paintHUD(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g;
+            // Painting HUD
+            g2.setTransform(HUDTransform);
             g2.setFont(new Font("FreeMono", Font.BOLD, 20));
             FontMetrics fm = g2.getFontMetrics();
-            g2.drawString("Generation " + grid.generation(), HUDOffset, fm.getAscent() + HUDOffset);
+            g2.drawString("Generation " + view.grid.generation(), HUDOffset, fm.getAscent() + HUDOffset);
         }
     }
 
@@ -115,6 +116,14 @@ public class View {
 
     public Interaction getInteraction() {
         return interaction;
+    }
+
+    public void setMousePositionOnGrid(Point p) {
+        mousePositionOnGrid.setLocation(p);
+    }
+
+    public void setMouseDisplay(boolean display) {
+        mustDisplayMouse = display;
     }
 
     // Interaction

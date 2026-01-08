@@ -7,18 +7,18 @@ import java.awt.event.*;
 
 public class Interaction implements KeyListener, MouseListener, MouseMotionListener {
 
-    private View v;
+    private final View view;
     private WorldMachine worldMachine;
 
     private KeyState keyState = KeyState.IDLE;
 
     public Interaction(View view, WorldMachine worldMachine) {
-        this.v = view;
+        this.view = view;
         this.worldMachine = worldMachine;
     }
 
     public Interaction(View view) {
-        this.v = view;
+        this.view = view;
     }
 
     public void setWorldMachine(WorldMachine worldMachine) {
@@ -38,37 +38,38 @@ public class Interaction implements KeyListener, MouseListener, MouseMotionListe
             case KeyEvent.VK_UP:
                 switch (keyState) {
                     case KeyState.IDLE:
-                        v.translate(new Point(0, -1));
+                        view.translate(new Point(0, -1));
                         return;
                     case KeyState.CTRL_PRESSED:
-                        v.zoomIn();
+                        view.zoomIn();
                         return;
                 }
             case KeyEvent.VK_DOWN:
                 switch (keyState) {
                     case KeyState.IDLE:
-                        v.translate(new Point(0, 1));
+                        view.translate(new Point(0, 1));
                         return;
                     case KeyState.CTRL_PRESSED:
-                        v.zoomOut();
+                        view.zoomOut();
                         return;
                 }
             case KeyEvent.VK_LEFT:
-                v.translate(new Point(-1, 0));
+                view.translate(new Point(-1, 0));
                 return;
             case KeyEvent.VK_RIGHT:
-                v.translate(new Point(1, 0));
+                view.translate(new Point(1, 0));
                 return;
             case KeyEvent.VK_ENTER:
                 switch (keyState) {
                     case KeyState.CTRL_PRESSED:
-                        v.resetZoom();
+                        view.resetZoom();
                         return;
                 }
                 return;
             case KeyEvent.VK_SPACE:
                 if (worldMachine != null) {
                     worldMachine.pause();
+                    view.setMouseDisplay(worldMachine.isPaused());
                 }
                 return;
         }
@@ -90,7 +91,7 @@ public class Interaction implements KeyListener, MouseListener, MouseMotionListe
     @Override
     public void mousePressed(MouseEvent e) {
         if (worldMachine.isPaused()) {
-            v.addCell(pixelToGrid(e.getPoint()));
+            view.addCell(pixelToGrid(e.getPoint()));
         }
     }
 
@@ -111,12 +112,13 @@ public class Interaction implements KeyListener, MouseListener, MouseMotionListe
     @Override
     public void mouseDragged(MouseEvent e) {
         if (worldMachine.isPaused()) {
-            v.addCell(pixelToGrid(e.getPoint()));
+            view.addCell(pixelToGrid(e.getPoint()));
         }
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
+        view.setMousePositionOnGrid(pixelToGrid(e.getPoint()));
     }
 
     enum KeyState {
@@ -124,7 +126,7 @@ public class Interaction implements KeyListener, MouseListener, MouseMotionListe
     }
 
     private Point pixelToGrid(Point pix) {
-        return new Point((int) (pix.x / v.getZoomFactor() + v.getTranslate().x), (int) (pix.y / v.getZoomFactor() + v.getTranslate().y));
+        return new Point((int) (pix.x / view.getZoomFactor() + view.getTranslate().x), (int) (pix.y / view.getZoomFactor() + view.getTranslate().y));
     }
 
 }
