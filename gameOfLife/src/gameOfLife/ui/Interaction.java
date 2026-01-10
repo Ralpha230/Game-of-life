@@ -42,7 +42,7 @@ public class Interaction implements KeyListener, MouseListener, MouseMotionListe
             case KeyEvent.VK_UP:
                 switch (keyState) {
                     case KeyState.IDLE:
-                        view.translate(new Point(0, -1));
+                        view.moveUp();
                         return;
                     case KeyState.CTRL_PRESSED:
                         view.zoomIn();
@@ -51,17 +51,17 @@ public class Interaction implements KeyListener, MouseListener, MouseMotionListe
             case KeyEvent.VK_DOWN:
                 switch (keyState) {
                     case KeyState.IDLE:
-                        view.translate(new Point(0, 1));
+                        view.moveDown();
                         return;
                     case KeyState.CTRL_PRESSED:
                         view.zoomOut();
                         return;
                 }
             case KeyEvent.VK_LEFT:
-                view.translate(new Point(-1, 0));
+                view.moveLeft();
                 return;
             case KeyEvent.VK_RIGHT:
-                view.translate(new Point(1, 0));
+                view.moveRight();
                 return;
             case KeyEvent.VK_ENTER:
                 switch (keyState) {

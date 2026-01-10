@@ -19,6 +19,7 @@ public class View {
     private final Model model;
 
     final Point translate = new Point(0, 0);
+    private static final int defaultMoveSpeed = 50;
     final DoubleWrapper zoomFactor = new DoubleWrapper(1.0);
 
     private final Interaction interaction;
@@ -130,17 +131,33 @@ public class View {
 
     // Interaction
 
-    public void translate(Point delta) {
+    public void moveUp() {
+        translate(new Point(0, (int) -(defaultMoveSpeed / getZoomFactor())));
+    }
+
+    public void moveDown() {
+        translate(new Point(0, (int) (defaultMoveSpeed / getZoomFactor())));
+    }
+
+    public void moveLeft() {
+        translate(new Point((int) -(defaultMoveSpeed / getZoomFactor()), 0));
+    }
+
+    public void moveRight() {
+        translate(new Point((int) (defaultMoveSpeed / getZoomFactor()), 0));
+    }
+
+    private void translate(Point delta) {
         translate.x += delta.x;
         translate.y += delta.y;
     }
 
     public void zoomIn() {
-        zoomFactor.value += 0.2;
+        zoomFactor.value *= 1.5;
     }
 
     public void zoomOut() {
-        zoomFactor.value -= 0.2;
+        zoomFactor.value /= 1.5;
     }
 
     public void resetZoom() {
