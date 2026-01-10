@@ -3,15 +3,22 @@ package gameOfLife.core;
 import java.awt.Point;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 
 import gameOfLife.utils.Pair;
 
 public class Grid {
 
-    private Set<Cell> cells;
+    // Multithreading
+    private static final int nbThreads = Runtime.getRuntime().availableProcessors();
+    Set<Thread> threads = new HashSet<>();
+    private final Semaphore vatMutex = new Semaphore(1);
+
+    private Set<Cell> cells = new HashSet<>();
+    private Set<Point> vat = new HashSet<>();
+    private Set<Cell> res = new HashSet<>();
 
     public Grid() {
-        this.cells = new HashSet<>();
     }
 
     private long generation = 0;
@@ -19,49 +26,81 @@ public class Grid {
     /*
      * Updates the grid to hold the next generation
      */
-    void generate() {
+    synchronized void generate() {
+        for (int i = 0; i < nbThreads; i++) {
+            threads.add(new Thread(() -> {
+                while (true) {
+                    try {
+                        vatMutex.acquire();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    if (vat.isEmpty()) {
+                        vatMutex.release();
+                        return;
+                    }
+                    Point p = vat.iterator().next();
+                    vat.remove(p);
+                    vatMutex.release();
+                    switch (neighbours(p).size()) {
+                        case 0:
+                        case 1:
+                            break;
+                        case 2:
+                            synchronized (cells) {
+                                if (cells.contains(new Cell(p))) {
+                                    synchronized (res) {
+                                        res.add(new Cell(p));
+                                    }
+                                }
+                            }
+                            break;
+                        case 3:
+                            synchronized (res) {
+                                res.add(new Cell(p));
+                            }
+                            break;
+                        case 4:
+                        case 5:
+                        case 6:
+                        case 7:
+                        case 8:
+                            break;
+                        default:
+                            throw new RuntimeException("Unexpected number of neighbours");
+                    }
+                }
+            }));
+        }
 
-        Set<Cell> res = new HashSet<>();
-
-        Set<Point> vat = new HashSet<>();
-        for (Cell c : cells) {
-            vat.add(c.pos());
-            int x_c = c.pos().x;
-            int y_c = c.pos().y;
+        for (Cell cell : cells) {
+            vat.add(cell.pos());
+            int x_c = cell.pos().x;
+            int y_c = cell.pos().y;
             for (int x = x_c - 1; x < x_c + 2; x++) {
                 for (int y = y_c - 1; y < y_c + 2; y++) {
                     vat.add(new Point(x, y));
                 }
             }
         }
-
-        for (Point p : vat) {
-            switch (neighbours(p).size()) {
-                case 0:
-                case 1:
-                    break;
-                case 2:
-                    if (cells.contains(new Cell(p))) {
-                        res.add(new Cell(p));
-                    }
-                    break;
-                case 3:
-                    res.add(new Cell(p));
-                    break;
-                case 4:
-                case 5:
-                case 6:
-                case 7:
-                case 8:
-                    break;
-                default:
-                    throw new RuntimeException("Unexpected number of neighbours");
+        for (Thread thread : threads) {
+            thread.start();
+        }
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
 
         cells = res;
+        res = new HashSet<>();
+        vat = new HashSet<>();
+        threads = new HashSet<>();
         generation++;
     }
+
 
     /*
      * Return the collection of cells around p (except on p)
