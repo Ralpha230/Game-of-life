@@ -17,13 +17,12 @@ public class Glider extends Pattern {
 
     private Orientation orientation;
 
-    public Glider(Point pos, Orientation orientation) {
-        super(pos);
+    public Glider(Orientation orientation) {
         this.orientation = orientation;
     }
 
     @Override
-    public Set<Cell> getCells() {
+    public Set<Cell> getCells(Point pos) {
         Set<Cell> cells = new HashSet<Cell>();
         int x = pos.x;
         int y = pos.y;

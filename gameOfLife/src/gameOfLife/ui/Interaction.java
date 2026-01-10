@@ -1,6 +1,11 @@
 package gameOfLife.ui;
 
+import gameOfLife.core.Cell;
+import gameOfLife.core.Model;
 import gameOfLife.core.WorldMachine;
+import gameOfLife.core.pattern.Glider;
+import gameOfLife.core.pattern.Pattern;
+import gameOfLife.core.pattern.SingleCell;
 
 import java.awt.Point;
 import java.awt.event.*;
@@ -8,21 +13,20 @@ import java.awt.event.*;
 public class Interaction implements KeyListener, MouseListener, MouseMotionListener {
 
     private final View view;
-    private WorldMachine worldMachine;
+    private final Model model;
+
+    private int patternToDraw = 0;
+    private static Pattern patterns[] = {new SingleCell(),
+            new Glider(Glider.Orientation.SE),
+            new Glider(Glider.Orientation.SW),
+            new Glider(Glider.Orientation.NW),
+            new Glider(Glider.Orientation.NE)};
 
     private KeyState keyState = KeyState.IDLE;
 
-    public Interaction(View view, WorldMachine worldMachine) {
+    public Interaction(View view, Model model) {
         this.view = view;
-        this.worldMachine = worldMachine;
-    }
-
-    public Interaction(View view) {
-        this.view = view;
-    }
-
-    public void setWorldMachine(WorldMachine worldMachine) {
-        this.worldMachine = worldMachine;
+        this.model = model;
     }
 
     @Override
@@ -67,11 +71,14 @@ public class Interaction implements KeyListener, MouseListener, MouseMotionListe
                 }
                 return;
             case KeyEvent.VK_SPACE:
+                WorldMachine worldMachine = model.getWorldMachine();
                 if (worldMachine != null) {
                     worldMachine.pause();
                     view.setMouseDisplay(worldMachine.isPaused());
                 }
                 return;
+            case KeyEvent.VK_P:
+                patternToDraw = (patternToDraw + 1) % patterns.length;
         }
     }
 
@@ -90,8 +97,9 @@ public class Interaction implements KeyListener, MouseListener, MouseMotionListe
 
     @Override
     public void mousePressed(MouseEvent e) {
+        WorldMachine worldMachine = model.getWorldMachine();
         if (worldMachine.isPaused()) {
-            view.addCell(pixelToGrid(e.getPoint()));
+            drawPattern(pixelToGrid(e.getPoint()));
         }
     }
 
@@ -111,8 +119,9 @@ public class Interaction implements KeyListener, MouseListener, MouseMotionListe
 
     @Override
     public void mouseDragged(MouseEvent e) {
+        WorldMachine worldMachine = model.getWorldMachine();
         if (worldMachine.isPaused()) {
-            view.addCell(pixelToGrid(e.getPoint()));
+            drawPattern(pixelToGrid(e.getPoint()));
         }
     }
 
@@ -127,6 +136,16 @@ public class Interaction implements KeyListener, MouseListener, MouseMotionListe
 
     private Point pixelToGrid(Point pix) {
         return new Point((int) (pix.x / view.getZoomFactor() + view.getTranslate().x), (int) (pix.y / view.getZoomFactor() + view.getTranslate().y));
+    }
+
+    public Pattern getPatternToDraw() {
+        return patterns[patternToDraw];
+    }
+
+    private void drawPattern(Point pos) {
+        for (Cell c : patterns[patternToDraw].getCells(pos)) {
+            view.addCell(c);
+        }
     }
 
 }

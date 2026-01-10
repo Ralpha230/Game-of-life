@@ -9,6 +9,7 @@ import javax.swing.*;
 import gameOfLife.core.Cell;
 import gameOfLife.core.Grid;
 import gameOfLife.core.Model;
+import gameOfLife.core.pattern.Pattern;
 import gameOfLife.utils.DoubleWrapper;
 
 public class View {
@@ -20,7 +21,7 @@ public class View {
     final Point translate = new Point(0, 0);
     final DoubleWrapper zoomFactor = new DoubleWrapper(1.0);
 
-    final Interaction interaction;
+    private final Interaction interaction;
     Boolean mustDisplayMouse = true;
     final Point mousePositionOnGrid = new Point(0, 0);
 
@@ -33,7 +34,7 @@ public class View {
         f.pack();
         f.setVisible(true);
 
-        this.interaction = new Interaction(this);
+        this.interaction = new Interaction(this, model);
         f.addKeyListener(interaction);
         viewer.addMouseListener(interaction);
         viewer.addMouseMotionListener(interaction);
@@ -81,10 +82,13 @@ public class View {
                 g2.fillRect(c.pos().x * cellSize, c.pos().y * cellSize, cellSize, cellSize);
             }
 
-            // Painting mouse cursor
+            // Painting ghost pattern
             if (view.mustDisplayMouse) {
                 g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
-                g2.fillRect(view.mousePositionOnGrid.x * cellSize, view.mousePositionOnGrid.y * cellSize, cellSize, cellSize);
+                Pattern pattern = view.interaction.getPatternToDraw();
+                for (Cell c : pattern.getCells(view.mousePositionOnGrid)) {
+                    g2.fillRect(c.pos().x * cellSize, c.pos().y * cellSize, cellSize, cellSize);
+                }
                 g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1));
             }
 
@@ -143,8 +147,8 @@ public class View {
         zoomFactor.value = 1;
     }
 
-    public void addCell(Point p) {
-        model.getGrid().addCell(p);
+    public void addCell(Cell cell) {
+        model.getGrid().addCell(cell);
     }
 
 }

@@ -130,10 +130,14 @@ public class Grid {
         return p.o1.y - p.o2.y;
     }
 
-    // Initialization
+    public void addCells(Set<Cell> cells) {
+        for (Cell c : cells) {
+            addCell(c);
+        }
+    }
 
-    public void addCell(Point pos) {
-        cells.add(new Cell(pos));
+    public void addCell(Cell cell) {
+        cells.add(cell);
     }
 
     public long generation() {

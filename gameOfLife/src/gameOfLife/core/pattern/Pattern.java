@@ -7,11 +7,5 @@ import java.util.Set;
 
 public abstract class Pattern {
 
-    protected Point pos;
-
-    public Pattern(Point pos) {
-        this.pos = pos;
-    }
-
-    public abstract Set<Cell> getCells();
+    public abstract Set<Cell> getCells(Point pos);
 }
