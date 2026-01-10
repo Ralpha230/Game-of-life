@@ -9,7 +9,7 @@ import gameOfLife.ui.View;
 
 public class Main {
 
-    private static final long genDuration = 100;
+    private static final long genDuration = 10;
     private static final int frameRate = 30;
 
     public static void main(String[] args) {

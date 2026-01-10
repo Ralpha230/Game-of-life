@@ -16,7 +16,8 @@ public class Interaction implements KeyListener, MouseListener, MouseMotionListe
     private final Model model;
 
     private int patternToDraw = 0;
-    private static Pattern patterns[] = {new SingleCell(),
+    private static Pattern patterns[] = {
+            new SingleCell(),
             new Glider(Glider.Orientation.SE),
             new Glider(Glider.Orientation.SW),
             new Glider(Glider.Orientation.NW),
@@ -127,7 +128,7 @@ public class Interaction implements KeyListener, MouseListener, MouseMotionListe
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        view.setMousePositionOnGrid(pixelToGrid(e.getPoint()));
+        view.setGhostPositionOnGrid(pixelToGrid(e.getPoint()));
     }
 
     enum KeyState {

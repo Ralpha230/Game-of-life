@@ -2,46 +2,48 @@ package gameOfLife.ui;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.io.Serial;
 
 import javax.swing.*;
 
 import gameOfLife.core.Cell;
-import gameOfLife.core.Grid;
 import gameOfLife.core.Model;
 import gameOfLife.core.pattern.Pattern;
 import gameOfLife.utils.DoubleWrapper;
 
-public class View {
+public class View extends JPanel {
 
-    JFrame f = new JFrame("My Humble Game Of Life");
-
-    private final Model model;
-
-    final Point translate = new Point(0, 0);
+    // Size of a cell in pixels
+    private static final int cellSize = 1;
+    // Amount of pixels by which the camera moves at a time by default
     private static final int defaultMoveSpeed = 50;
-    final DoubleWrapper zoomFactor = new DoubleWrapper(1.0);
+    // Offset of the HUD from the edge of the window
+    private static final int HUDOffset = 10;
 
+    private final JFrame frame = new JFrame("My Humble Game Of Life");
+    private final Model model;
     private final Interaction interaction;
-    Boolean mustDisplayMouse = true;
-    final Point mousePositionOnGrid = new Point(0, 0);
+
+    private final Point translate = new Point(0, 0);
+    private final DoubleWrapper zoomFactor = new DoubleWrapper(1.0);
+    private Boolean mustDisplayMouse = true;
+    private final Point ghostPositionOnGrid = new Point(0, 0);
+
 
     public View(Model model, int frameRate) {
         this.model = model;
-
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        GridViewer viewer = new GridViewer(this);
-        f.add(viewer);
-        f.pack();
-        f.setVisible(true);
-
         this.interaction = new Interaction(this, model);
-        f.addKeyListener(interaction);
-        viewer.addMouseListener(interaction);
-        viewer.addMouseMotionListener(interaction);
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add(this);
+        frame.pack();
+        frame.setVisible(true);
+
+        frame.addKeyListener(interaction);
+        addMouseListener(interaction);
+        addMouseMotionListener(interaction);
         new Thread(() -> {
             while (true) {
-                f.repaint(1);
+                frame.repaint(0);
                 try {
                     Thread.sleep(1000 / frameRate);
                 } catch (InterruptedException e) {
@@ -51,54 +53,41 @@ public class View {
         }).start();
     }
 
-    public static class GridViewer extends JPanel {
+    public Dimension getPreferredSize() {
+        return new Dimension(512, 512);
+    }
 
-        private final View view;
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
 
-        // Size of a cell in pixels
-        private static final int cellSize = 1;
+        Graphics2D g2 = (Graphics2D) g;
+        AffineTransform HUDTransform = (AffineTransform) g2.getTransform().clone();
+        AffineTransform gridTransform = (AffineTransform) g2.getTransform().clone();
+        gridTransform.scale(zoomFactor.value / cellSize, zoomFactor.value / cellSize);
+        gridTransform.translate(-translate.x, -translate.y);
 
-        private int HUDOffset = 10;
-
-        public GridViewer(View view) {
-            this.view = view;
+        // Painting cells
+        g2.setTransform(gridTransform);
+        for (Cell c : model.getGrid().cells()) {
+            g2.fillRect(c.pos().x * cellSize, c.pos().y * cellSize, cellSize, cellSize);
         }
 
-        public Dimension getPreferredSize() {
-            return new Dimension(512, 512);
-        }
-
-        public void paintComponent(Graphics g) {
-            super.paintComponent(g);
-
-            Graphics2D g2 = (Graphics2D) g;
-            AffineTransform HUDTransform = (AffineTransform) g2.getTransform().clone();
-            AffineTransform gridTransform = (AffineTransform) g2.getTransform().clone();
-            gridTransform.scale(view.zoomFactor.value / cellSize, view.zoomFactor.value / cellSize);
-            gridTransform.translate(-view.translate.x, -view.translate.y);
-
-            // Painting cells
-            g2.setTransform(gridTransform);
-            for (Cell c : view.model.getGrid().cells()) {
+        // Painting ghost pattern
+        if (mustDisplayMouse) {
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+            Pattern pattern = interaction.getPatternToDraw();
+            for (Cell c : pattern.getCells(ghostPositionOnGrid)) {
                 g2.fillRect(c.pos().x * cellSize, c.pos().y * cellSize, cellSize, cellSize);
             }
-
-            // Painting ghost pattern
-            if (view.mustDisplayMouse) {
-                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
-                Pattern pattern = view.interaction.getPatternToDraw();
-                for (Cell c : pattern.getCells(view.mousePositionOnGrid)) {
-                    g2.fillRect(c.pos().x * cellSize, c.pos().y * cellSize, cellSize, cellSize);
-                }
-                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1));
-            }
-
-            // Painting HUD
-            g2.setTransform(HUDTransform);
-            g2.setFont(new Font("FreeMono", Font.BOLD, 20));
-            FontMetrics fm = g2.getFontMetrics();
-            g2.drawString("Generation " + view.model.getGrid().generation(), HUDOffset, fm.getAscent() + HUDOffset);
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1));
         }
+
+        // Painting HUD
+        g2.setTransform(HUDTransform);
+        g2.setFont(new Font("FreeMono", Font.BOLD, 20));
+        FontMetrics fm = g2.getFontMetrics();
+        g2.drawString("Generation " + model.getGrid().generation(), HUDOffset, fm.getAscent() + HUDOffset);
+
     }
 
     public Point getTranslate() {
@@ -121,8 +110,8 @@ public class View {
         return interaction;
     }
 
-    public void setMousePositionOnGrid(Point p) {
-        mousePositionOnGrid.setLocation(p);
+    public void setGhostPositionOnGrid(Point p) {
+        ghostPositionOnGrid.setLocation(p);
     }
 
     public void setMouseDisplay(boolean display) {
