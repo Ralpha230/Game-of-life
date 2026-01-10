@@ -4,24 +4,24 @@ import java.awt.Point;
 
 public class Cell {
 
-	private Point pos;
+    private Point pos;
 
-	Cell(Point pos) {
-		this.pos = pos;
-	}
+    public Cell(Point pos) {
+        this.pos = pos;
+    }
 
-	public Point pos() {
-		return pos;
-	}
+    public Point pos() {
+        return pos;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		return !(o == null) && (o instanceof Cell) && ((Cell) o).pos().equals(pos);
-	}
+    @Override
+    public boolean equals(Object o) {
+        return !(o == null) && (o instanceof Cell) && ((Cell) o).pos().equals(pos);
+    }
 
-	@Override
-	public int hashCode() {
-		return pos.hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return pos.hashCode();
+    }
 
 }
