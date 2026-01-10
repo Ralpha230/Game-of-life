@@ -8,23 +8,24 @@ import javax.swing.*;
 
 import gameOfLife.core.Cell;
 import gameOfLife.core.Grid;
+import gameOfLife.core.Model;
 import gameOfLife.utils.DoubleWrapper;
 
 public class View {
 
     JFrame f = new JFrame("My Humble Game Of Life");
 
-    Grid grid;
+    private final Model model;
 
     final Point translate = new Point(0, 0);
     final DoubleWrapper zoomFactor = new DoubleWrapper(1.0);
 
     final Interaction interaction;
-    Boolean mustDisplayMouse = false;
+    Boolean mustDisplayMouse = true;
     final Point mousePositionOnGrid = new Point(0, 0);
 
-    public View(Grid grid, int frameRate) {
-        this.grid = grid;
+    public View(Model model, int frameRate) {
+        this.model = model;
 
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         GridViewer viewer = new GridViewer(this);
@@ -49,9 +50,6 @@ public class View {
     }
 
     public static class GridViewer extends JPanel {
-
-        @Serial
-        private static final long serialVersionUID = 1L;
 
         private final View view;
 
@@ -79,7 +77,7 @@ public class View {
 
             // Painting cells
             g2.setTransform(gridTransform);
-            for (Cell c : view.grid.cells()) {
+            for (Cell c : view.model.getGrid().cells()) {
                 g2.fillRect(c.pos().x * cellSize, c.pos().y * cellSize, cellSize, cellSize);
             }
 
@@ -94,7 +92,7 @@ public class View {
             g2.setTransform(HUDTransform);
             g2.setFont(new Font("FreeMono", Font.BOLD, 20));
             FontMetrics fm = g2.getFontMetrics();
-            g2.drawString("Generation " + view.grid.generation(), HUDOffset, fm.getAscent() + HUDOffset);
+            g2.drawString("Generation " + view.model.getGrid().generation(), HUDOffset, fm.getAscent() + HUDOffset);
         }
     }
 
@@ -146,7 +144,7 @@ public class View {
     }
 
     public void addCell(Point p) {
-        this.grid.addCell(p);
+        model.getGrid().addCell(p);
     }
 
 }

@@ -3,6 +3,7 @@ package gameOfLife;
 import java.awt.Point;
 
 import gameOfLife.core.Grid;
+import gameOfLife.core.Model;
 import gameOfLife.core.WorldMachine;
 import gameOfLife.ui.View;
 
@@ -18,7 +19,8 @@ public class Main {
         drawGliderSE(grid, new Point(5, 5));
         drawBlinker(grid, new Point(10, 10));
         WorldMachine wm = new WorldMachine(grid, genDuration);
-        View view = new View(grid, frameRate);
+        Model model = new Model(grid, wm);
+        View view = new View(model, frameRate);
         view.getInteraction().setWorldMachine(wm);
 
         wm.start();

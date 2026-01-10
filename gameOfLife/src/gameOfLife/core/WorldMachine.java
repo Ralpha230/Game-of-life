@@ -8,8 +8,8 @@ public class WorldMachine {
 
     private final Grid grid;
     private final Thread t;
-    private boolean paused = false;
-    private Semaphore pauseSemaphore = new Semaphore(1, true);
+    private boolean paused = true;
+    private final Semaphore pauseSemaphore = new Semaphore(paused ? 0 : 1, true);
 
     public WorldMachine(Grid grid, long genDuration) {
         this.grid = grid;
