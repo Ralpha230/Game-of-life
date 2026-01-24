@@ -1,8 +1,7 @@
 package gameOfLife.core;
 
 import java.awt.Point;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Semaphore;
 
 import gameOfLife.utils.Pair;
@@ -14,8 +13,8 @@ public class Grid {
     Set<Thread> threads = new HashSet<>();
     private final Semaphore vatMutex = new Semaphore(1);
 
-    private Set<Cell> cells = new HashSet<>();
-    private Set<Point> vat = new HashSet<>();
+    private final CellSet cells = new CellSet();
+    private List<Point> vat = new LinkedList<Point>();
     private Set<Cell> res = new HashSet<>();
 
     public Grid() {
@@ -39,8 +38,7 @@ public class Grid {
                         vatMutex.release();
                         return;
                     }
-                    Point p = vat.iterator().next();
-                    vat.remove(p);
+                    Point p = vat.removeFirst();
                     vatMutex.release();
                     switch (neighbours(p).size()) {
                         case 0:
@@ -94,9 +92,9 @@ public class Grid {
             }
         }
 
-        cells = res;
+        cells.clear();
+        cells.addAll(res);
         res = new HashSet<>();
-        vat = new HashSet<>();
         threads = new HashSet<>();
         generation++;
     }
@@ -108,16 +106,15 @@ public class Grid {
     public Set<Cell> neighbours(Point p) {
 
         Set<Cell> res = new HashSet<>();
-        int x = p.x;
-        int y = p.y;
-
-        for (Cell n : cells) {
-            int x_n = n.pos().x;
-            int y_n = n.pos().y;
-            boolean neighbour = x - 1 <= x_n && x_n <= x + 1 && y - 1 <= y_n && y_n <= y + 1;
-            boolean different = x != x_n || y != y_n;
-            if (neighbour && different) {
-                res.add(n);
+        for (int x = p.x - 1; x < p.x + 2; x++) {
+            for (int y = p.y - 1; y < p.y + 2; y++) {
+                if (x == p.x && y == p.y) {
+                    continue;
+                }
+                Cell candidate = new Cell(new Point(x, y));
+                if (cells.contains(candidate)) {
+                    res.add(candidate);
+                }
             }
         }
 
@@ -159,24 +156,16 @@ public class Grid {
         return new Pair<Point, Point>(topLeft, bottomRight);
     }
 
-    public int width() {
-        Pair<Point, Point> p = corners();
-        return p.o2.x - p.o1.x;
-    }
-
-    public int height() {
-        Pair<Point, Point> p = corners();
-        return p.o1.y - p.o2.y;
-    }
-
     public void addCells(Set<Cell> cells) {
-        for (Cell c : cells) {
-            addCell(c);
-        }
+        cells.addAll(cells);
     }
 
     public void addCell(Cell cell) {
         cells.add(cell);
+    }
+
+    public boolean isAlive(Point pos) {
+        return cells.contains(new Cell(pos));
     }
 
     public long generation() {
